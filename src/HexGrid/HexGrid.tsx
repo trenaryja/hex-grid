@@ -1,17 +1,17 @@
 import { StrokeData, SVG } from '@svgdotjs/svg.js'
 import { defineHex, Grid, Orientation, rectangle } from 'honeycomb-grid'
-import { svg2png } from './utils'
+import { HTMLProps } from 'react'
+import { downloadPng, downloadSvg } from './utils'
 
 const screenWidth = window.screen.width * window.devicePixelRatio
 const screenHeight = window.screen.height * window.devicePixelRatio
-const screenScale = 1 / 1.3
 
 interface HexStyles {
   stroke: StrokeData
   fill: string
 }
 
-export interface HexGridProps {
+export interface HexGridProps extends HTMLProps<HTMLDivElement> {
   width?: number
   height?: number
   sideLength?: number
@@ -21,14 +21,14 @@ export interface HexGridProps {
 }
 
 export const HexGrid = (props: HexGridProps) => {
-  console.log(screenWidth)
   const {
-    width = screenWidth * screenScale,
-    height = screenHeight * screenScale,
+    width = screenWidth,
+    height = screenHeight,
     orientation = 'flat',
     center = 'horizontally',
     sideLength,
     hexScale = 10,
+    ..._props
   } = props
 
   const sizeCalculations = {
@@ -67,10 +67,14 @@ export const HexGrid = (props: HexGridProps) => {
     svg.group().add(SVG().polygon(points).fill(fill).stroke(stroke))
   })
 
-  const download = () => svg2png(svg, width, height)
+  const download = () => {
+    downloadPng(svg, width, height)
+    downloadSvg(svg)
+  }
 
   return (
     <div
+      {..._props}
       onDoubleClick={download}
       style={{ height: height, width: width }}
       dangerouslySetInnerHTML={{ __html: svg.node.outerHTML }}
